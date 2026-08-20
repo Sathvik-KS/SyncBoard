@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-
-type Text = string;
-
+import { data } from 'react-router-dom';
 
 function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
     let timer: ReturnType<typeof setTimeout>;
@@ -11,8 +9,8 @@ function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
     };
 }
 
-export default function useDocSocket() : {text : Text; sendText : (text : string) => void}{
-    const [text, setText] = useState<Text>("");
+export default function useDocSocket(roomName : string) : {text : string; sendText : (text : string) => void}{
+    const [text, setText] = useState<string>("");
     const socketRef = useRef<WebSocket | null>(null);
     const debouncedSendRef = useRef(
         debounce((content : string) => {
@@ -21,14 +19,16 @@ export default function useDocSocket() : {text : Text; sendText : (text : string
     );
 
     useEffect(() => {
-        // async function loadExisting(){
-        //     const response = await fetch("http://localhost:8000/api/livedoc/");
-        //     const data = await response.json();
-        //     setText(data);
-        // }
-        // loadExisting();
+        async function loadExisting(){
+            const response = await fetch(`http://localhost:8000/api/livedoc/?room_name=${roomName}`);
+            if(!response.ok){console.log("Miss")}
+            const dataArray = await response.json();
+            const data = dataArray.length > 0 ? dataArray[0].content : "";
+            setText(data);
+        }
+        loadExisting();
         
-        const socket = new WebSocket("ws://localhost:8000/ws/livedoc/");
+        const socket = new WebSocket(`ws://localhost:8000/ws/livedoc/${roomName}/`);
         socketRef.current = socket;
 
         socket.onmessage = (event) => {

@@ -7,7 +7,7 @@ interface Message{
     sender_id : string;
 }
 
-export default function useNoteSocket() : { messages: Message[]; sendMessage: (title : string, message: string) => void; deleteMessage: (id: number) => void; senderId : string }{
+export default function useNoteSocket(roomName : string) : { messages: Message[]; sendMessage: (title : string, message: string) => void; deleteMessage: (id: number) => void; senderId : string }{
     const socketRef = useRef<WebSocket | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
 
@@ -22,13 +22,13 @@ export default function useNoteSocket() : { messages: Message[]; sendMessage: (t
         localStorage.setItem("senderId", senderId);
 
         async function loadExisting(){
-            const res = await fetch("http://localhost:8000/api/notes/");
+            const res = await fetch(`http://localhost:8000/api/notes/?room_name=${roomName}`);
             const data = await res.json();
             setMessages(data.map((note: any) => ({ id: note.id, action: "new", message: note.content, "sender_id" : note.sender_id})));
         };
         loadExisting();
 
-        const socket = new WebSocket('ws://localhost:8000/ws/notes/');
+        const socket = new WebSocket(`ws://localhost:8000/ws/notes/${roomName}/`);
         socketRef.current = socket;
 
         socket.onmessage = (event) => {
@@ -45,10 +45,10 @@ export default function useNoteSocket() : { messages: Message[]; sendMessage: (t
             socket.close();
         };
 
-    }, [])
+    }, [roomName])
 
     const sendMessage = (title: string, message:string) => {
-        socketRef.current?.send(JSON.stringify({action : "new", title, message, sender_id : senderId})); 
+        socketRef.current?.send(JSON.stringify({action : "new", title, message, sender_id : senderId, room_name : roomName})); 
     };
 
     const deleteMessage = (id : number) => {
