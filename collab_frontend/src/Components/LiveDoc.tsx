@@ -9,17 +9,19 @@ export default function LiveDoc(){
     
 
     return(
-        <>
-        <RoomNav/>
-        <div>
-            <h2>Live document</h2>
-            <textarea
-                value = {text} onChange={e => sendText(e.target.value)}
-                rows = {15}
-                style = {{width : "100%", maxWidth : "600px", fontFamily : "inherit", fontSize : "14px"}}
-            />
+        <div className = "min-h-screen flex items-center justify-center bg-slate-950">
+            <div className = "bg-slate-900 border border-slate-800 rounded-2xl p-8 w-full max-w-2xl">
+                <RoomNav/>
+                <div>
+                    <h2 className = "msg-enter-other text-white text-lg p-2">Live document</h2>
+                    <textarea
+                        value = {text} onChange={e => sendText(e.target.value)}
+                        rows = {15}
+                        className = "w-full mt-4 bg-slate-950 border border-slate-700 rounded-lg p-4 text-white focus:outline-none focus:border-blue-400 hover:border-slate-100 transition"    
+                    />
+                </div>
+            </div>
         </div>
-        </>
     )
 
 }
