@@ -7,6 +7,10 @@ class NoteSerializer(serializers.ModelSerializer):
         model = Note
         fields = "__all__"
 
+class NoteCreateSocketSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    message = serializers.CharField()
+
 class LiveDocSerializer(serializers.ModelSerializer):
     class Meta:
         model = LiveDoc
