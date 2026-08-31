@@ -1,5 +1,6 @@
 from django.urls import re_path
-from .consumer import NoteConsumer, LiveDocConsumer
+
+from .consumer import LiveDocConsumer, NoteConsumer
 
 websocket_urlpatterns = [
     re_path(r"ws/notes/(?P<room_name>[\w-]+)/$", NoteConsumer.as_asgi()),

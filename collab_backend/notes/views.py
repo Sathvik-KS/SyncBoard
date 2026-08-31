@@ -1,8 +1,7 @@
-from django.shortcuts import render
-from .models import Note, LiveDoc
-from .serializers import NoteSerializer, LiveDocSerializer
-
 from rest_framework import viewsets
+
+from .models import LiveDoc, Note
+from .serializers import LiveDocSerializer, NoteSerializer
 
 # Create your views here.
 

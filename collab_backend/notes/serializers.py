@@ -1,5 +1,6 @@
-from .models import Note, LiveDoc
 from rest_framework import serializers
+
+from .models import LiveDoc, Note
 
 
 class NoteSerializer(serializers.ModelSerializer):

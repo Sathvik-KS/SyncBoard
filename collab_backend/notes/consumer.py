@@ -1,8 +1,11 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+
 from channels.db import database_sync_to_async
-from .models import Note, LiveDoc
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+from .models import LiveDoc, Note
 from .serializers import NoteCreateSocketSerializer
+
 
 class NoteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
