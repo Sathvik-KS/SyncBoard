@@ -14,9 +14,11 @@ from django.core.asgi import get_asgi_application
 
 from notes.routing import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'collab_backend.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "collab_backend.settings")
 
-application = ProtocolTypeRouter({
-    "http" : get_asgi_application(),
-    "websocket" : URLRouter(websocket_urlpatterns),
-})
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": URLRouter(websocket_urlpatterns),
+    }
+)
