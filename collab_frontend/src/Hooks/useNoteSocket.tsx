@@ -6,15 +6,21 @@ interface Message{
     message : string;
     sender_id : string;
 }
+type SocketError = string | null
 
-export default function useNoteSocket(roomName : string) : { messages: Message[]; sendMessage: (title : string, message: string) => void; deleteMessage: (id: number) => void; senderId : string }{
+export default function useNoteSocket(roomName : string) : { messages: Message[]; sendMessage: (title : string, message: string) => void; deleteMessage: (id: number) => void; senderId : string; error : SocketError; clearError : () => void }{
     const socketRef = useRef<WebSocket | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
+    const [error, setError] = useState<SocketError>(null);
 
 
     const senderId = useRef(
         localStorage.getItem("senderId") ?? crypto.randomUUID()
     ).current;  
+
+    const clearError = () => {
+        setError(null);
+    }
 
 
     useEffect(() => {
@@ -41,11 +47,9 @@ export default function useNoteSocket(roomName : string) : { messages: Message[]
                 setMessages((prev) => prev.filter((p) => data.id !== p.id))
             }
             else if(data.type === "error"){
-                console.error(data.message);
+                // console.log(data.message)
+                setError(data.message)
             }
-            // else{
-
-            // }
         };
 
         return () => {
@@ -59,9 +63,9 @@ export default function useNoteSocket(roomName : string) : { messages: Message[]
     };
 
     const deleteMessage = (id : number) => {
-        socketRef.current?.send(JSON.stringify({action : "delete", id, sender_id : senderId}));
+        socketRef.current?.send(JSON.stringify({action : "elete", id, sender_id : senderId}));
     }
 
-    return {messages, sendMessage, deleteMessage, senderId};
+    return {messages, sendMessage, deleteMessage, senderId, error, clearError};
 
 }

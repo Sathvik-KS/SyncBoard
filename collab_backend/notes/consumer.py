@@ -27,6 +27,13 @@ class NoteConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(
                     self.room_group_name, {"type": "note_deleted", "id": data["id"]}
                 )
+            else:
+                error = {
+                    "type" : "error",
+                    "code" : "NOTE_NOT_DELETED",
+                    "message" : "Note could not be deleted.",
+                }
+                await self.send(text_data = json.dumps(error))
 
         elif action == "new":
             serializer = NoteCreateSocketSerializer(data=data)
