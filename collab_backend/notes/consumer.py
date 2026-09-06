@@ -3,7 +3,7 @@ import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .models import LiveDoc, Note
+from .models import LiveDoc, Note, Room
 from .serializers import NoteCreateSocketSerializer
 
 
@@ -92,8 +92,9 @@ class NoteConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_note(self, title, content, sender_id, room_name):
+        room = Room.objects.get(name = room_name)
         return Note.objects.create(
-            title=title, content=content, sender_id=sender_id, room_name=room_name
+            title=title, content=content, sender_id=sender_id, room=room,
         )
 
     @database_sync_to_async

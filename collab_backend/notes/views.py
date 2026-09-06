@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
-from .models import LiveDoc, Note
-from .serializers import LiveDocSerializer, NoteSerializer
+from .models import LiveDoc, Note, Room
+from .serializers import LiveDocSerializer, NoteSerializer, RoomSerializer
 
 # Create your views here.
 
@@ -13,7 +13,7 @@ class NoteViewSet(viewsets.ModelViewSet):
         queryset = Note.objects.all()
         room_name = self.request.query_params.get("room_name")
         if room_name:
-            queryset = queryset.filter(room_name=room_name)
+            queryset = queryset.filter(room__name=room_name)
         return queryset
 
 
@@ -27,3 +27,8 @@ class LiveDocViewSet(viewsets.ModelViewSet):
         if room_name:
             queryset = queryset.filter(room_name=room_name)
         return queryset
+
+
+class RoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer

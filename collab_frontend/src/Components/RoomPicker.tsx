@@ -5,10 +5,15 @@ export default function RoomPicker(){
     const [room, setRoom] = useState("");
     const navigate = useNavigate();
 
-    const enterRoom = () => {
+    const createRoom = () => {
+        if(!room.trim())return;
+        navigate(`chat/${room.trim()}/`);
+    }
+
+    const joinRoom = () => {
         if(!room.trim()) return;
         navigate(`chat/${room.trim()}/`);
-    };
+    }
 
     return(
         <div className = "min-h-screen flex items-center justify-center bg-gray-950">
@@ -22,9 +27,13 @@ export default function RoomPicker(){
                 className = "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 mb-4 focus:outline-none focus:border-blue-500 transition hover:border-blue-100"
                 />
                 <button 
-                onClick = {enterRoom}
-                className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg transition"
-                >Go</button>
+                onClick = {createRoom}
+                className = "flex-1 w-40 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg transition mb-2"
+                >Create</button>
+                <button 
+                onClick = {joinRoom}
+                className = "flex-1 w-40 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg transition"
+                >Join</button>
             </div>
         </div>
     )
