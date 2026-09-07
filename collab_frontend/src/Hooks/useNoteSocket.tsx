@@ -63,7 +63,7 @@ export default function useNoteSocket(roomName : string) : { messages: Message[]
     };
 
     const deleteMessage = (id : number) => {
-        socketRef.current?.send(JSON.stringify({action : "elete", id, sender_id : senderId}));
+        socketRef.current?.send(JSON.stringify({action : "delete", id, sender_id : senderId}));
     }
 
     return {messages, sendMessage, deleteMessage, senderId, error, clearError};

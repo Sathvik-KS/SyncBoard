@@ -30,5 +30,13 @@ class LiveDocViewSet(viewsets.ModelViewSet):
 
 
 class RoomViewSet(viewsets.ModelViewSet):
-    queryset = Room.objects.all()
     serializer_class = RoomSerializer
+
+    def get_queryset(self):
+        queryset = Room.objects.all()
+        room_name = self.request.query_params.get("name")
+
+        if room_name:
+            queryset = queryset.filter(name = room_name)
+        
+        return queryset
