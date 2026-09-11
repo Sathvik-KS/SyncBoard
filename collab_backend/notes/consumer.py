@@ -10,12 +10,17 @@ from .serializers import NoteCreateSocketSerializer
 class NoteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        if not await self.room_exists(self.room_name):
+            print(f"WebSocket rejected: room '{self.room_name}' does not exist")
+            await self.close()
+            return
         self.room_group_name = f"notes_{self.room_name}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        if hasattr(self, "room_group_name"):
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -89,6 +94,10 @@ class NoteConsumer(AsyncWebsocketConsumer):
         await self.send(
             text_data=json.dumps({"type": "note_deleted", "id": event["id"]})
         )
+
+    @database_sync_to_async
+    def room_exists(self, room_name):
+        return Room.objects.filter(name = room_name).exists()
 
     @database_sync_to_async
     def save_note(self, title, content, sender_id, room_name):
