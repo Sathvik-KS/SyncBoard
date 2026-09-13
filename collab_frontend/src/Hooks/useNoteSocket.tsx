@@ -40,10 +40,10 @@ export default function useNoteSocket(roomName : string) : { messages: Message[]
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
-            if(data.type === "note_created"){
+            if(data.type === "message_created"){
                 setMessages((prev) => [...prev, data]);
             }
-            else if(data.type == "note_deleted"){
+            else if(data.type == "message_deleted"){
                 setMessages((prev) => prev.filter((p) => data.id !== p.id))
             }
             else if(data.type === "error"){

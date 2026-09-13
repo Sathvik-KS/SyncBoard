@@ -1,15 +1,15 @@
 from rest_framework import serializers
 
-from .models import LiveDoc, Note, Room
+from .models import LiveDoc, Message, Room
 
 
-class NoteSerializer(serializers.ModelSerializer):
+class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Note
+        model = Message
         fields = "__all__"
 
 
-class NoteCreateSocketSerializer(serializers.Serializer):
+class MessageCreateSocketSerializer(serializers.Serializer):
     title = serializers.CharField()
     message = serializers.CharField()
 

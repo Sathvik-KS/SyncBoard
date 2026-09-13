@@ -1,16 +1,16 @@
 from rest_framework import viewsets
 
-from .models import LiveDoc, Note, Room
-from .serializers import LiveDocSerializer, NoteSerializer, RoomSerializer
+from .models import LiveDoc, Message, Room
+from .serializers import LiveDocSerializer, MessageSerializer, RoomSerializer
 
 # Create your views here.
 
 
-class NoteViewSet(viewsets.ModelViewSet):
-    serializer_class = NoteSerializer
+class MessageViewSet(viewsets.ModelViewSet):
+    serializer_class = MessageSerializer
 
     def get_queryset(self):
-        queryset = Note.objects.all()
+        queryset = Message.objects.all()
         room_name = self.request.query_params.get("room_name")
         if room_name:
             queryset = queryset.filter(room__name=room_name)

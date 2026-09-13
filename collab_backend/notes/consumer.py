@@ -3,18 +3,18 @@ import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .models import LiveDoc, Note, Room
-from .serializers import NoteCreateSocketSerializer
+from .models import LiveDoc, Message, Room
+from .serializers import MessageCreateSocketSerializer
 
 
-class NoteConsumer(AsyncWebsocketConsumer):
+class MessageConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         if not await self.room_exists(self.room_name):
             print(f"WebSocket rejected: room '{self.room_name}' does not exist")
             await self.close()
             return
-        self.room_group_name = f"notes_{self.room_name}"
+        self.room_group_name = f"messages_{self.room_name}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
@@ -27,37 +27,37 @@ class NoteConsumer(AsyncWebsocketConsumer):
         action = data.get("action")
 
         if action == "delete":
-            deleted = await self.delete_note(data["id"], data["sender_id"])
+            deleted = await self.delete_message(data["id"], data["sender_id"])
             if deleted:
                 await self.channel_layer.group_send(
-                    self.room_group_name, {"type": "note_deleted", "id": data["id"]}
+                    self.room_group_name, {"type": "message_deleted", "id": data["id"]}
                 )
             else:
                 error = {
                     "type" : "error",
                     "code" : "NOTE_NOT_DELETED",
-                    "message" : "Note could not be deleted.",
+                    "message" : "Message could not be deleted.",
                 }
                 await self.send(text_data = json.dumps(error))
 
         elif action == "new":
-            serializer = NoteCreateSocketSerializer(data=data)
+            serializer = MessageCreateSocketSerializer(data=data)
             if serializer.is_valid():
                 # use the validated data from the serializer
                 title_data = serializer.validated_data["title"]
                 message_data = serializer.validated_data["message"]
                 # Save the using the function save_note and save the return data into note variable
-                note = await self.save_note(
+                message = await self.save_message(
                     title_data, message_data, data["sender_id"], self.room_name
                 )
                 # Send the note saved response to the group
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
-                        "type": "note_created",
-                        "message": note.content,
-                        "id": note.id,
-                        "sender_id": note.sender_id,
+                        "type": "message_created",
+                        "message": message.content,
+                        "id": message.id,
+                        "sender_id": message.sender_id,
                     },
                 )
                 # If the data isn't valid, send the error to the user alone
@@ -65,7 +65,7 @@ class NoteConsumer(AsyncWebsocketConsumer):
                 error = {
                     "type": "error",
                     "code": "INVALID_PAYLOAD",
-                    "message": "Invalid note data.",
+                    "message": "Invalid message data.",
                 }
                 # No channel because it isn't sent to all the users, only the creater of the message
                 await self.send(text_data=json.dumps(error))
@@ -78,11 +78,11 @@ class NoteConsumer(AsyncWebsocketConsumer):
             }
             await self.send(text_data=json.dumps(error))
 
-    async def note_created(self, event):
+    async def message_created(self, event):
         await self.send(
             text_data=json.dumps(
                 {
-                    "type": "note_created",
+                    "type": "message_created",
                     "message": event["message"],
                     "id": event["id"],
                     "sender_id": event["sender_id"],
@@ -90,9 +90,9 @@ class NoteConsumer(AsyncWebsocketConsumer):
             )
         )
 
-    async def note_deleted(self, event):
+    async def message_deleted(self, event):
         await self.send(
-            text_data=json.dumps({"type": "note_deleted", "id": event["id"]})
+            text_data=json.dumps({"type": "message_deleted", "id": event["id"]})
         )
 
     @database_sync_to_async
@@ -100,15 +100,15 @@ class NoteConsumer(AsyncWebsocketConsumer):
         return Room.objects.filter(name = room_name).exists()
 
     @database_sync_to_async
-    def save_note(self, title, content, sender_id, room_name):
+    def save_message(self, title, content, sender_id, room_name):
         room = Room.objects.get(name = room_name)
-        return Note.objects.create(
+        return Message.objects.create(
             title=title, content=content, sender_id=sender_id, room=room,
         )
 
     @database_sync_to_async
-    def delete_note(self, note_id, sender_id):
-        delete_count, _ = Note.objects.filter(id=note_id, sender_id=sender_id).delete()
+    def delete_message(self, message_id, sender_id):
+        delete_count, _ = Message.objects.filter(id=message_id, sender_id=sender_id).delete()
         return delete_count > 0
 
 

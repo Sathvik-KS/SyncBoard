@@ -9,7 +9,7 @@ class Room(models.Model):
     def __str__(self):
         return self.name
 
-class Note(models.Model):
+class Message(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     sender_id = models.CharField(max_length=100, default="anonymous")
